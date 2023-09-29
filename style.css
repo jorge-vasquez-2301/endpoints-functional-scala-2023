@@ -1,0 +1,11 @@
+ul {
+    font-size: 1.5rem !important
+}
+
+strong {
+    @apply text-[#f2644f] !important
+}
+
+b {
+    @apply text-[#ff814f] !important
+}
