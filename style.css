@@ -1,11 +1,32 @@
-ul {
-    font-size: 1.5rem !important
-}
+:root {
+    --ziverge-color: #ff814f;
 
-strong {
-    @apply text-[#f2644f] !important
-}
+    b,
+    strong {
+        @apply text-[var(--ziverge-color)] font-semibold
+    }
 
-b {
-    @apply text-[#ff814f] !important
+    h1 {
+        @apply text-6xl
+    }
+
+    h2 {
+        @apply text-4xl
+    }
+
+    ul {
+        font-size: 1.5rem
+    }
+
+    .slidev-layout.cover {
+        @apply text-center pt-0 pb-23
+    }
+
+    .slidev-layout[layout=image] {
+        @apply flex h-screen w-screen items-center
+    }
+
+    .slidev-layout[layout=quote] {
+        @apply flex h-screen w-screen justify-center items-center
+    }
 }
