@@ -114,7 +114,30 @@ transition: slide-left
 layout: default
 ---
 
-## Implementation using the **ZIO-HTTP Routes API**
+## Shopping Cart using the **ZIO-HTTP Routes API**
+
+<div class="flex h-4/5 w-full items-center">
+```scala {all|3|4} {maxHeight:'400px'}
+// build.sbt
+libraryDependencies ++= Seq(
+  "dev.zio" %% "zio-http"   % zioHttpVersion,
+  "dev.zio" %% "zio-macros" % zioVersion,
+)
+```
+</div>
+
+<style>
+  .slidev-code-wrapper {
+    @apply w-full
+  }
+</style>
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using the **ZIO-HTTP Routes API**
 
 ```scala {1|3|4|6-9|11-18|20-37|39-43} {maxHeight:'400px'}
 import zio.json._
@@ -167,7 +190,7 @@ transition: slide-left
 layout: default
 ---
 
-## Implementation using the **ZIO-HTTP Routes API**
+## Shopping Cart using the **ZIO-HTTP Routes API**
 
 ```scala {1-3|5|6|7|8|9|10|11|12|6-13} {maxHeight:'400px'}
 import zio._
@@ -199,7 +222,7 @@ transition: slide-left
 layout: default
 ---
 
-## Implementation using the **ZIO-HTTP Routes API**
+## Shopping Cart using the **ZIO-HTTP Routes API**
 
 ```scala {1-2|4|5-16|18-34|36-41} {maxHeight:'400px'}
 import zio._
@@ -259,7 +282,7 @@ transition: slide-left
 layout: default
 ---
 
-## Implementation using the **ZIO-HTTP Routes API**
+## Shopping Cart using the **ZIO-HTTP Routes API**
 
 ```scala {1-3|5|7-14|7|8|13|16-36|16|17|21-23|25-34|35|38-45|38|39|44|47-60|47|48|52-54|56-59|62-78|62|63|67-76|77} {maxHeight:'400px'}
 import zio._
@@ -351,6 +374,15 @@ layout: default
   <div><img src="/boring.jpg" class="h-70"/></div>
 </div>
 
+--
+transition: slide-left
+layout: default
+---
+
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/nothingFree.jpg" class="h-70"/></div>
+</div>
+
 ---
 transition: slide-left
 layout: quote
@@ -371,10 +403,128 @@ layout: default
 transition: slide-left
 layout: image
 image: /theater.jpg
-class: "justify-center"
+class: "text-center justify-center"
 ---
 
-# Use High-Level Endpoints!
+# Use High-Level<br/>Endpoint Libraries!
+
+---
+transition: slide-left
+layout: default
+---
+
+## Use High-Level **Endpoint** Libraries!
+
+<div class="mt-4 flex h-4/5 w-full items-center gap-5 text-justify">
+  <div class="w-2/3">
+    <ul>
+      <li v-click>The Scala open-source ecosystem offers <b>superior alternatives</b> for API development</li>
+      <li v-click>Libraries like <b>Endpoints4s</b>, <b>Tapir</b> and <b>ZIO HTTP</b> enable developers to define Endpoints at a higher level</li>
+      <li v-click>They <b>eliminate</b> the need to handle decoding and encoding manually</li>
+      <li v-click>They provide benefits like <b>OpenAPI documentation</b> and <b>type-safe clients</b> totally for free</li>
+    </ul>
+  </div>
+  <div v-click><img src="/highLevel.jpeg" class="h-60"/></div>
+</div>
+
+---
+transition: slide-left
+layout: default
+---
+
+## Use High-Level **Endpoint** Libraries!
+
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/sourceTruth.jpeg" class="h-60"/></div>
+</div>
+
+---
+transition: slide-left
+layout: image
+image: /laptop.jpg
+class: "justify-end text-right"
+---
+
+## Example:<br/>Shopping Cart using **Endpoints4s**
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Endpoints4s**
+
+<div class="flex h-4/5 w-full items-center">
+```scala {all|3|4|5|6|7|8|9|10} {maxHeight:'400px'}
+// build.sbt
+libraryDependencies ++= Seq(
+  "org.endpoints4s"               %% "algebra"                 % endpoints4sVersion,
+  "org.endpoints4s"               %% "json-schema-generic"     % endpoints4sVersion,
+  "org.endpoints4s"               %% "http4s-server"           % endpoints4sHttp4sServerVersion,
+  "org.endpoints4s"               %% "http4s-client"           % endpoints4sHttp4sClientVersion,
+  "org.endpoints4s"               %% "openapi"                 % endpoints4sOpenApiVersion,
+  "org.http4s"                    %% "http4s-blaze-server"     % http4sBlazeVersion,
+  "org.http4s"                    %% "http4s-blaze-client"     % http4sBlazeVersion,
+  "dev.zio"                       %% "zio-interop-cats"        % zioInteropCatsVersion
+)
+```
+</div>
+
+<style>
+  .slidev-code-wrapper {
+    @apply w-full
+  }
+</style>
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Endpoints4s**
+
+```scala {1-4|6|7|9|11|13-21|23-38|40} {maxHeight:'400px'}
+import endpoints4s.generic.docs
+import zio._
+
+import java.util.UUID
+
+// Step 1: Define Models
+type Eff[+A] = RIO[CartService, A]
+
+type ItemId = UUID
+
+type UserId = UUID
+
+final case class Item(
+  @docs("The Item's unique identifier") id: ItemId,
+  @docs("The Item's name") name: String,
+  @docs("The Item's unit price") price: Double,
+  @docs("The Item's quantity") quantity: Int
+) {
+  self =>
+  def withQuantity(quantity: Int): Item = self.copy(quantity = quantity)
+}
+
+final case class Items(items: Map[ItemId, Item]) {
+  self =>
+
+  def +(item: Item): Items = Items(self.items + (item.id -> item))
+
+  def -(itemId: ItemId): Items = Items(self.items - itemId)
+
+  def take(n: Int): Items = Items(self.items.take(n))
+
+  def updateQuantity(itemId: ItemId, quantity: Int): Items =
+    Items(self.items.updatedWith(itemId)(_.map(_.withQuantity(quantity))))
+}
+
+object Items {
+  val empty = Items(Map.empty)
+}
+
+final case class UpdateItemRequest(@docs("The new item quantity") quantity: Int)
+```
 
 ---
 transition: slide-left
