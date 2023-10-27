@@ -757,6 +757,41 @@ object Endpoints4sClient extends ZIOAppDefault {
 
 ---
 transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Docs using **Endpoints4s**
+
+```scala {1-2|4|5|6|7|8|10|12-19|21|23-24} {maxHeight:'400px'}
+import endpoints4s.openapi
+import zio._
+
+object Endpoints4sDocs
+    extends openapi.Endpoints
+    with openapi.JsonEntitiesFromSchemas
+    with Endpoints
+    with ZIOAppDefault {
+
+  import openapi.model._
+
+  val docs =
+    openApi(Info(title = "Shopping cart", version = "0.1.0"))(
+      initializeCart,
+      addItem,
+      removeItem,
+      updateItem,
+      getCartContents
+    )
+
+  val docsJson = OpenApi.stringEncoder.encode(docs)
+
+  override val run =
+    Console.printLine(s"OpenAPI docs:\n$docsJson")
+}
+```
+
+---
+transition: slide-left
 layout: image-right
 image: /summary.jpg
 ---
