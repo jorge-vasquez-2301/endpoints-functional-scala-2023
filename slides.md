@@ -528,6 +528,235 @@ final case class UpdateItemRequest(@docs("The new item quantity") quantity: Int)
 
 ---
 transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Endpoints4s**
+
+```scala {1-7|9|10|11|12|13|14|16|18-23|25|27|28|29|31-36|33|34|35|38-54|41|42|43-50|52|53|56-61|63-68|70-74|71} {maxHeight:'400px'}
+import endpoints4s.{ algebra, generic }
+import endpoints4s.Validated
+
+import java.util.UUID
+
+import scala.util.Success
+import scala.util.Try
+
+// Step 2: Define Endpoints
+trait Endpoints
+    extends algebra.Endpoints
+    with algebra.JsonEntitiesFromSchemas
+    with generic.JsonSchemas
+    with algebra.StatusCodes {
+
+  implicit lazy val itemSchema: JsonSchema[Item] = genericJsonSchema
+
+  implicit lazy val itemsSchema: JsonSchema[Items] =
+    mapJsonSchema[Item].xmapPartial(values =>
+      Validated
+        .traverse(values.toList) { case (k, v) => Validated.fromTry(Try(UUID.fromString(k))).map(_ -> v) }
+        .map(items => Items(items.toMap))
+    )(_.items.map { case (k, v) => (k.toString(), v) }.toMap)
+
+  implicit lazy val updateItemRequestSchema: JsonSchema[UpdateItemRequest] = genericJsonSchema
+
+  val userId = segment[UUID]("userId", docs = Some("The unique identifier of a user"))
+  val itemId = segment[UUID]("itemId", docs = Some("The unique identifier of an item"))
+  val limit  = qs[Option[Int]]("limit", docs = Some("The maximum number of items to obtain"))
+
+  val initializeCart =
+    endpoint(
+      post(path / "cart" / userId, emptyRequest),
+      response(NoContent, emptyResponse),
+      docs = EndpointDocs().withDescription(Some("Initiliaze a user's cart"))
+    )
+
+  val addItem =
+    endpoint(
+      post(
+        path / "cart" / userId / "item",
+        jsonRequest[Item],
+        headers = optRequestHeader(
+          "X-ALL-ITEMS",
+          docs = Some("Flag to indicate whether to return all items or just the new one")
+        ).xmapPartial(allItems =>
+          allItems.fold(Validated.fromTry(Success(Option.empty[Boolean])))(allItems =>
+            Validated.fromOption(allItems.toBooleanOption)("invalid value").map(Some(_))
+          )
+        )(_.map(_.toString))
+      ),
+      ok(jsonResponse[Items], docs = Some("The operation result")),
+      docs = EndpointDocs().withDescription(Some("Add an item to a user's cart"))
+    )
+
+  val removeItem =
+    endpoint(
+      delete(path / "cart" / userId / "item" / itemId),
+      ok(jsonResponse[Items], docs = Some("The cart items after removal")),
+      docs = EndpointDocs().withDescription(Some("Removes an item from a user's cart"))
+    )
+
+  val updateItem =
+    endpoint(
+      put(path / "cart" / userId / "item" / itemId, jsonRequest[UpdateItemRequest], docs = Some("The request object")),
+      ok(jsonResponse[Items], docs = Some("The cart items after updating")),
+      docs = EndpointDocs().withDescription(Some("Updates an item"))
+    )
+
+  val getCartContents = endpoint(
+    get(path / "cart" / userId /? limit),
+    ok(jsonResponse[Items], docs = Some("The cart items")),
+    docs = EndpointDocs().withDescription(Some("Gets the contents of a user's cart"))
+  )
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Endpoints4s**
+
+```scala {1-4|6|7|8|9|10|11|13-20|13|22-33|35-42|44-51|53-60|62-64|66-73} {maxHeight:'400px'}
+import org.http4s._
+import org.http4s.blaze.server.BlazeServerBuilder
+import zio._
+import zio.interop.catz._
+
+// Step 3: Generate Http4s server, backed by ZIO, from Endpoints
+object Endpoints4sServer
+    extends endpoints4s.http4s.server.Endpoints[Eff]
+    with endpoints4s.http4s.server.JsonEntitiesFromSchemas
+    with Endpoints
+    with ZIOAppDefault {
+
+  val initializeCartRoute = initializeCart.implementedByEffect { userId =>
+    ZIO.logSpan("initializeCart") {
+      for {
+        _ <- ZIO.logInfo("Initializing cart")
+        _ <- CartService.initialize(userId)
+      } yield ()
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+  }
+
+  val addItemRoute = addItem.implementedByEffect { case ((userId, item, allItems)) =>
+    ZIO.logSpan("addItem") {
+      for {
+        _      <- ZIO.logInfo("Adding item to cart")
+        items0 <- CartService.addItem(userId, item)
+        items   = allItems match {
+                    case Some(true) => items0
+                    case _          => Items.empty + item
+                  }
+      } yield items
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+  }
+
+  val removeItemRoute = removeItem.implementedByEffect { case (userId, itemId) =>
+    ZIO.logSpan("removeItem") {
+      for {
+        _     <- ZIO.logInfo("Removing item from cart")
+        items <- CartService.removeItem(userId, itemId)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+  }
+
+  val updateItemRoute = updateItem.implementedByEffect { case (userId, itemId, updateItemRequest) =>
+    ZIO.logSpan("updateItem") {
+      for {
+        _     <- ZIO.logInfo("Updating item")
+        items <- CartService.updateItemQuantity(userId, itemId, updateItemRequest.quantity)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+  }
+
+  val getCartContentsRoute = getCartContents.implementedByEffect { case (userId, limit) =>
+    ZIO.logSpan("getCartContents") {
+      for {
+        _     <- ZIO.logInfo("Getting cart contents")
+        items <- CartService.getContents(userId)
+      } yield limit.fold(items)(items.take)
+    } @@ ZIOAspect.annotated("userId" -> userId.toString())
+  }
+
+  val routes: HttpRoutes[Eff] = HttpRoutes.of {
+    routesFromEndpoints(initializeCartRoute, addItemRoute, removeItemRoute, updateItemRoute, getCartContentsRoute)
+  }
+
+  override val run =
+    BlazeServerBuilder[Eff]
+      .bindHttp(8080, "localhost")
+      .withHttpApp(routes.orNotFound)
+      .serve
+      .compile
+      .drain
+      .provide(CartServiceLive.layer)
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Client using **Endpoints4s**
+
+```scala {1-11|13|15|18|19-29|30-32|33|34-36|37-39|40|41|42-44|45} {maxHeight:'400px'}
+import com.comcast.ip4s.IpAddress
+import com.comcast.ip4s.Ipv4Address
+import org.http4s._
+import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.Uri.Authority
+import org.http4s.Uri.Host
+import org.http4s.Uri.Scheme
+import zio._
+import zio.interop.catz._
+
+import java.util.UUID
+
+object Endpoints4sClient extends ZIOAppDefault {
+
+  val clientExample =
+    ZIO.scoped {
+      for {
+        // Instantiate an Http4sClient backed by ZIO
+        client  <- BlazeClientBuilder[Eff].resource.toScopedZIO.map { http4sClient =>
+                     new endpoints4s.http4s.client.Endpoints(
+                       Authority(
+                         None,
+                         Host.fromIpAddress(IpAddress.fromString("127.0.0.1").get),
+                         Some(8080)
+                       ),
+                       Scheme.http,
+                       http4sClient
+                     ) with endpoints4s.http4s.client.JsonEntitiesFromSchemas with Endpoints
+                   }
+        userId  <- ZIO.succeed(UUID.randomUUID())
+        itemId1 <- ZIO.succeed(UUID.randomUUID())
+        itemId2 <- ZIO.succeed(UUID.randomUUID())
+        _       <- client.initializeCart.sendAndConsume(userId)
+        _       <- client.addItem
+                     .sendAndConsume((userId, Item(itemId1, "test-item-1", 10.0, 10), None))
+                     .debug("addItem result")
+        _       <- client.addItem
+                     .sendAndConsume(userId, Item(itemId2, "test-item-2", 20.0, 20), Some(true))
+                     .debug("addItem result")
+        _       <- client.removeItem.sendAndConsume(userId, itemId2).debug("removeItem result")
+        _       <- client.updateItem.sendAndConsume(userId, itemId1, UpdateItemRequest(35)).debug("updateItem result")
+        _       <- client.addItem
+                     .sendAndConsume(userId, Item(itemId2, "test-item-2", 20.0, 20), Some(true))
+                     .debug("addItem result")
+        _       <- client.getCartContents.sendAndConsume(userId, Some(1)).debug("getCartContents result")
+      } yield ()
+    }
+
+  val run = clientExample.provide(CartServiceLive.layer)
+}
+```
+
+---
+transition: slide-left
 layout: image-right
 image: /summary.jpg
 ---
