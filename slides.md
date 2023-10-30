@@ -792,6 +792,329 @@ object Endpoints4sDocs
 
 ---
 transition: slide-left
+layout: image
+image: /laptop.jpg
+class: "justify-end text-right"
+---
+
+## Example:<br/>Shopping Cart using **Tapir**
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Tapir**
+
+<div class="flex h-4/5 w-full items-center">
+```scala {all|3|4|5|6|7|8|9|10|11} {maxHeight:'400px'}
+// build.sbt
+libraryDependencies ++= Seq(
+  "com.softwaremill.sttp.tapir"   %% "tapir-core"              % tapirVersion,
+  "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server-zio" % tapirVersion,
+  "com.softwaremill.sttp.tapir"   %% "tapir-json-zio"          % tapirVersion,
+  "com.softwaremill.sttp.tapir"   %% "tapir-sttp-client"       % tapirVersion,
+  "com.softwaremill.sttp.tapir"   %% "tapir-openapi-docs"      % tapirVersion,
+  "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml"      % openApiCirceYamlVersion,
+  "com.softwaremill.sttp.client3" %% "zio"                     % sttpZioVersion,
+  "org.http4s"                    %% "http4s-blaze-server"     % http4sBlazeVersion,
+  "dev.zio"                       %% "zio-interop-cats"        % zioInteropCatsVersion
+)
+```
+</div>
+
+<style>
+  .slidev-code-wrapper {
+    @apply w-full
+  }
+</style>
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Tapir**
+
+```scala {1-8|9|10|12-15|17|19-32|34-55|57-61} {maxHeight:'400px'}
+import sttp.tapir.Schema.annotations.description
+import sttp.tapir.Schema
+import zio._
+import zio.json._
+
+import scala.util.Try
+import java.util.UUID
+
+// Step 1: Define Models
+type Eff[+A] = RIO[CartService, A]
+
+type ItemId = UUID
+implicit val encoder: JsonFieldEncoder[UUID] = JsonFieldEncoder.string.contramap(_.toString())
+implicit val decoder: JsonFieldDecoder[UUID] =
+  JsonFieldDecoder.string.mapOrFail(str => Try(UUID.fromString(str)).toEither.left.map(_.getMessage()))
+
+type UserId = UUID
+
+final case class Item(
+  @description("The Item's unique identifier") id: ItemId,
+  @description("The Item's name") name: String,
+  @description("The Item's unit price") price: Double,
+  @description("The Item's quantity") quantity: Int
+) {
+  self =>
+  def withQuantity(quantity: Int): Item = self.copy(quantity = quantity)
+}
+
+object Item {
+  implicit val jsonCodec: JsonCodec[Item] = DeriveJsonCodec.gen[Item]
+  implicit val schema: Schema[Item]       = Schema.derived[Item]
+}
+
+final case class Items(items: Map[ItemId, Item]) {
+  self =>
+
+  def +(item: Item): Items = Items(self.items + (item.id -> item))
+
+  def -(itemId: ItemId): Items = Items(self.items - itemId)
+
+  def take(n: Int): Items = Items(self.items.take(n))
+
+  def updateQuantity(itemId: ItemId, quantity: Int): Items =
+    Items(self.items.updatedWith(itemId)(_.map(_.withQuantity(quantity))))
+}
+
+object Items {
+  val empty = Items(Map.empty)
+
+  implicit val jsonCodec: JsonCodec[Items] = DeriveJsonCodec.gen[Items]
+  implicit val schema: Schema[Items]       = Schema
+    .schemaForMap[ItemId, Item](_.toString())
+    .map(items => Some(Items(items)))(_.items)
+    .description("Map of item IDs to corresponding items")
+}
+
+final case class UpdateItemRequest(@description("The new item quantity") quantity: Int)
+object UpdateItemRequest {
+  implicit val jsonCodec: JsonCodec[UpdateItemRequest] = DeriveJsonCodec.gen[UpdateItemRequest]
+  implicit val schema: Schema[UpdateItemRequest]       = Schema.derived[UpdateItemRequest]
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Tapir**
+
+```scala {1-6|7|8|9|10|11|12-13|15-19|16|17|18|19|21-27|22|23|24|25|26|27|29-33|30|31|32|33|35-40|36|37|38|39|40|42-47|43|44|45|46|47} {maxHeight:'400px'}
+import sttp.model.StatusCode
+import sttp.tapir.json.zio._
+import sttp.tapir.ztapir._
+
+import java.util.UUID
+
+// Step 2: Define Endpoints
+trait Endpoints {
+  val userId    = path[UUID]("userId").description("The unique identifier of a user")
+  val itemId    = path[UUID]("userId").description("The unique identifier of an item")
+  val limit     = query[Option[Int]]("limit").description("The maximum number of items to obtain")
+  val xAllItems = header[Option[Boolean]]("X-ALL-ITEMS")
+    .description("Flag to indicate whether to return all items or just the new one")
+
+  val initializeCart =
+    endpoint.post
+      .in("cart" / userId)
+      .out(statusCode(StatusCode.NoContent))
+      .description("Initiliaze a user's cart")
+
+  val addItem =
+    endpoint.post
+      .in("cart" / userId / "item")
+      .in(xAllItems)
+      .in(jsonBody[Item].description("The item to be added"))
+      .out(jsonBody[Items].description("The operation result"))
+      .description("Add an item to a user's cart")
+
+  val removeItem =
+    endpoint.delete
+      .in("cart" / userId / "item" / itemId)
+      .out(jsonBody[Items].description("The cart items after removal"))
+      .description("Removes an item from a user's cart")
+
+  val updateItem =
+    endpoint.put
+      .in("cart" / userId / "item" / itemId)
+      .in(jsonBody[UpdateItemRequest].description("The request object"))
+      .out(jsonBody[Items].description("The cart items after updating"))
+      .description("Updates an item")
+
+  val getCartContents =
+    endpoint.get
+      .in("cart" / userId)
+      .in(limit)
+      .out(jsonBody[Items].description("The cart items"))
+      .description("Gets the contents of a user's cart")
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **Tapir**
+
+```scala {1-6|7|8|9-17|19-30|32-39|41-48|50-57|59-70|72-79} {maxHeight:'400px'}
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.HttpRoutes
+import zio._
+import zio.interop.catz._
+
+// Step 3: Generate Http4s server, backed by ZIO, from Endpoints
+object TapirServer extends ZIOAppDefault with Endpoints {
+
+  val initializeCartLogic = initializeCart.zServerLogic { userId =>
+    ZIO.logSpan("initializeCart") {
+      for {
+        _ <- ZIO.logInfo("Initializing cart")
+        _ <- CartService.initialize(userId)
+      } yield ()
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+  }
+
+  val addItemLogic = addItem.zServerLogic { case (userId, allItems, item) =>
+    ZIO.logSpan("addItem") {
+      for {
+        _      <- ZIO.logInfo("Adding item to cart")
+        items0 <- CartService.addItem(userId, item)
+        items   = allItems match {
+                    case Some(true) => items0
+                    case _          => Items.empty + item
+                  }
+      } yield items
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+  }
+
+  val removeItemLogic = removeItem.zServerLogic { case (userId, itemId) =>
+    ZIO.logSpan("removeItem") {
+      for {
+        _     <- ZIO.logInfo("Removing item from cart")
+        items <- CartService.removeItem(userId, itemId)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+  }
+
+  val updateItemLogic = updateItem.zServerLogic { case (userId, itemId, updateItemRequest) =>
+    ZIO.logSpan("updateItem") {
+      for {
+        _     <- ZIO.logInfo("Updating item")
+        items <- CartService.updateItemQuantity(userId, itemId, updateItemRequest.quantity)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+  }
+
+  val getCartContentsLogic = getCartContents.zServerLogic { case (userId, limit) =>
+    ZIO.logSpan("getCartContents") {
+      for {
+        _     <- ZIO.logInfo("Getting cart contents")
+        items <- CartService.getContents(userId)
+      } yield limit.fold(items)(items.take)
+    } @@ ZIOAspect.annotated("userId" -> userId.toString())
+  }
+
+  val routes: HttpRoutes[Eff] =
+    ZHttp4sServerInterpreter()
+      .from(
+        List(
+          initializeCartLogic,
+          addItemLogic,
+          removeItemLogic,
+          updateItemLogic,
+          getCartContentsLogic
+        )
+      )
+      .toRoutes
+
+  override val run =
+    BlazeServerBuilder[Eff]
+      .bindHttp(8080, "localhost")
+      .withHttpApp(routes.orNotFound)
+      .serve
+      .compile
+      .drain
+      .provide(CartServiceLive.layer)
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Client using **Tapir**
+
+```scala {1-6|8|12|13|14|15-18|19-21|22|23|24|25|26|27|28} {maxHeight:'400px'}
+import sttp.model.Uri._
+import sttp.tapir.client.sttp.SttpClientInterpreter
+import sttp.client3.httpclient.zio.HttpClientZioBackend
+import zio._
+
+import java.util.UUID
+
+object TapirClient extends ZIOAppDefault with Endpoints {
+
+  val run =
+    for {
+      backend              <- HttpClientZioBackend()
+      uri                   = Some(uri"http://localhost:8080")
+      initializeCartClient  = SttpClientInterpreter().toClient(initializeCart, uri, backend)
+      addItemClient         = SttpClientInterpreter().toClient(addItem, uri, backend)
+      removeItemClient      = SttpClientInterpreter().toClient(removeItem, uri, backend)
+      updateItemClient      = SttpClientInterpreter().toClient(updateItem, uri, backend)
+      getCartContentsClient = SttpClientInterpreter().toClient(getCartContents, uri, backend)
+      userId               <- ZIO.succeed(UUID.randomUUID())
+      itemId1              <- ZIO.succeed(UUID.randomUUID())
+      itemId2              <- ZIO.succeed(UUID.randomUUID())
+      _                    <- initializeCartClient(userId)
+      _                    <- addItemClient((userId, None, Item(itemId1, "test-item-1", 10.0, 10))).debug("addItem result")
+      _                    <- addItemClient((userId, Some(true), Item(itemId2, "test-item-2", 20.0, 20))).debug("addItem result")
+      _                    <- removeItemClient((userId, itemId2)).debug("removeItem result")
+      _                    <- updateItemClient((userId, itemId1, UpdateItemRequest(35))).debug("updateItem result")
+      _                    <- addItemClient((userId, Some(true), Item(itemId2, "test-item-2", 20.0, 20))).debug("addItem result")
+      _                    <- getCartContentsClient((userId, Some(1))).debug("getCartContents result")
+    } yield ()
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Docs using **Tapir**
+
+```scala {1-3|5|7-11|8|9|10|13-14} {maxHeight:'400px'}
+import sttp.apispec.openapi.circe.yaml._
+import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
+import zio._
+
+object TapirDocs extends ZIOAppDefault with Endpoints {
+
+  val docs = OpenAPIDocsInterpreter().toOpenAPI(
+    List(initializeCart, addItem, removeItem, updateItem, getCartContents),
+    "Shopping cart",
+    "0.1.0"
+  )
+
+  override val run =
+    Console.printLine(s"OpenAPI docs:\n${docs.toYaml}")
+}
+```
+
+---
+transition: slide-left
 layout: image-right
 image: /summary.jpg
 ---
