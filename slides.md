@@ -117,11 +117,10 @@ layout: default
 ## Shopping Cart using the **ZIO-HTTP Routes API**
 
 <div class="flex h-4/5 w-full items-center">
-```scala {all|3|4} {maxHeight:'400px'}
+```scala {all} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio-http"   % zioHttpVersion,
-  "dev.zio" %% "zio-macros" % zioVersion,
+  "dev.zio" %% "zio-http"   % zioHttpVersion
 )
 ```
 </div>
@@ -1110,6 +1109,262 @@ object TapirDocs extends ZIOAppDefault with Endpoints {
 
   override val run =
     Console.printLine(s"OpenAPI docs:\n${docs.toYaml}")
+}
+```
+
+---
+transition: slide-left
+layout: image
+image: /laptop.jpg
+class: "justify-end text-right"
+---
+
+## Example:<br/>Shopping Cart using **ZIO-HTTP Endpoints API**
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using the **ZIO-HTTP Endpoints API**
+
+<div class="flex h-4/5 w-full items-center">
+```scala {all} {maxHeight:'400px'}
+// build.sbt
+libraryDependencies ++= Seq(
+  "dev.zio" %% "zio-http" % zioHttpVersion
+)
+```
+</div>
+
+<style>
+  .slidev-code-wrapper {
+    @apply w-full
+  }
+</style>
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **ZIO-HTTP Endpoints API**
+
+```scala {1-6|8|9-12|14|16-29|31-48|50-55} {maxHeight:'400px'}
+import zio.json._
+import zio.schema._
+import zio.schema.annotation.description
+
+import scala.util.Try
+import java.util.UUID
+
+// Step 1: Define Models
+type ItemId = UUID
+implicit val encoder: JsonFieldEncoder[UUID] = JsonFieldEncoder.string.contramap(_.toString())
+implicit val decoder: JsonFieldDecoder[UUID] =
+  JsonFieldDecoder.string.mapOrFail(str => Try(UUID.fromString(str)).toEither.left.map(_.getMessage()))
+
+type UserId = UUID
+
+final case class Item(
+  @description("The Item's unique identifier") id: ItemId,
+  @description("The Item's name") name: String,
+  @description("The Item's unit price") price: Double,
+  @description("The Item's quantity") quantity: Int
+) {
+  self =>
+  def withQuantity(quantity: Int): Item = self.copy(quantity = quantity)
+}
+
+object Item {
+  implicit val jsonCodec: JsonCodec[Item] = DeriveJsonCodec.gen[Item]
+  implicit val schema: Schema[Item]       = DeriveSchema.gen[Item]
+}
+
+final case class Items(@description("Map of item IDs to corresponding items") items: Map[ItemId, Item]) {
+  self =>
+
+  def +(item: Item): Items = Items(self.items + (item.id -> item))
+
+  def -(itemId: ItemId): Items = Items(self.items - itemId)
+
+  def take(n: Int): Items = Items(self.items.take(n))
+
+  def updateQuantity(itemId: ItemId, quantity: Int): Items =
+    Items(self.items.updatedWith(itemId)(_.map(_.withQuantity(quantity))))
+}
+object Items {
+  val empty = Items(Map.empty)
+
+  implicit val jsonCodec: JsonCodec[Items] = DeriveJsonCodec.gen[Items]
+  implicit val schema: Schema[Items]       = DeriveSchema.gen[Items]
+}
+
+final case class UpdateItemRequest(@description("The new item quantity") quantity: Int)
+
+object UpdateItemRequest {
+  implicit val jsonCodec: JsonCodec[UpdateItemRequest] = DeriveJsonCodec.gen[UpdateItemRequest]
+  implicit val schema: Schema[UpdateItemRequest]       = DeriveSchema.gen[UpdateItemRequest]
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **ZIO-HTTP Endpoints API**
+
+```scala {1-4|6|7|8|9|10|11-12|14-16|15|16|18-22|19|20|21|22|24-26|25|26|28-31|29|30|31|33-36|34|35|36} {maxHeight:'400px'}
+import zio.http._
+import zio.http.codec._
+import zio.http.codec.HttpCodec._
+import zio.http.endpoint.Endpoint
+
+// Step 2: Define Endpoints
+trait Endpoints {
+  val userId    = uuid("userId") ?? Doc.p("The unique identifier of a user")
+  val itemId    = uuid("itemId") ?? Doc.p("The unique identifier of an item")
+  val limit     = paramInt("limit").optional ?? Doc.p("The maximum number of items to obtain")
+  val xAllItems = HeaderCodec.name[Boolean]("X-ALL-ITEMS").optional ??
+    Doc.p("Flag to indicate whether to return all items or just the new one")
+
+  val initializeCart =
+    Endpoint(Method.POST / "cart" / userId)
+      .out[Unit](Status.NoContent) ?? Doc.p("Initiliaze a user's cart")
+
+  val addItem =
+    Endpoint(Method.POST / "cart" / userId / "item")
+      .header(xAllItems)
+      .in[Item](Doc.p("The item to be added"))
+      .out[Items](Doc.p("The operation result")) ?? Doc.p("Add an item to a user's cart")
+
+  val removeItem =
+    Endpoint(Method.DELETE / "cart" / userId / "item" / itemId)
+      .out[Items](Doc.p("The cart items after removal")) ?? Doc.p("Removes an item from a user's cart")
+
+  val updateItem =
+    Endpoint(Method.PUT / "cart" / userId / "item" / itemId)
+      .in[UpdateItemRequest](Doc.p("The request object"))
+      .out[Items](Doc.p("The cart items after updating")) ?? Doc.p("Updates an item")
+
+  val getCartContents =
+    Endpoint(Method.GET / "cart" / userId)
+      .query(limit)
+      .out[Items](Doc.p("The cart items")) ?? Doc.p("Gets the contents of a user's cart")
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Shopping Cart using **ZIO-HTTP Endpoints API**
+
+```scala {1-2|4|5|7-13|15-25|27-33|35-41|43-49|51-58|60} {maxHeight:'400px'}
+import zio._
+import zio.http._
+
+// Step 3: Generate zio-http server
+object EndpointsServer extends ZIOAppDefault with Endpoints {
+
+  def handleInitializeCart(userId: UserId) =
+    ZIO.logSpan("initializeCart") {
+      for {
+        _ <- ZIO.logInfo("Initializing cart")
+        _ <- CartService.initialize(userId)
+      } yield ()
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+
+  def handleAddItem(userId: UserId, allItems: Option[Boolean], item: Item) =
+    ZIO.logSpan("addItem") {
+      for {
+        _      <- ZIO.logInfo("Adding item to cart")
+        items0 <- CartService.addItem(userId, item)
+        items   = allItems match {
+                    case Some(true) => items0
+                    case _          => Items.empty + item
+                  }
+      } yield items
+    } @@ ZIOAspect.annotated("userId", userId.toString())
+
+  def handleRemoveItem(userId: UserId, itemId: ItemId) =
+    ZIO.logSpan("removeItem") {
+      for {
+        _     <- ZIO.logInfo("Removing item from cart")
+        items <- CartService.removeItem(userId, itemId)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+
+  def handleUpdateItem(userId: UserId, itemId: ItemId, updateItemRequest: UpdateItemRequest) =
+    ZIO.logSpan("updateItem") {
+      for {
+        _     <- ZIO.logInfo("Updating item")
+        items <- CartService.updateItemQuantity(userId, itemId, updateItemRequest.quantity)
+      } yield items
+    } @@ ZIOAspect.annotated("userId" -> userId.toString(), "itemId" -> itemId.toString())
+
+  def handleGetCartContents(userId: UserId, limit: Option[Int]) =
+    ZIO.logSpan("getCartContents") {
+      for {
+        _     <- ZIO.logInfo("Getting cart contents")
+        items <- CartService.getContents(userId)
+      } yield limit.fold(items)(items.take)
+    } @@ ZIOAspect.annotated("userId" -> userId.toString())
+
+  val routes =
+    Routes(
+      initializeCart.implement(handler(handleInitializeCart _)),
+      addItem.implement(handler(handleAddItem _)),
+      removeItem.implement(handler(handleRemoveItem _)),
+      updateItem.implement(handler(handleUpdateItem _)),
+      getCartContents.implement(handler(handleGetCartContents _))
+    )
+
+  val run = Server.serve(routes.sandbox.toHttpApp).provide(Server.default, CartServiceLive.layer)
+}
+```
+
+---
+transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Client using **ZIO-HTTP Endpoints API**
+
+```scala {1-5|7|12|13-15|16|17|18|19|20|21|22} {maxHeight:'400px'}
+import zio._
+import zio.http._
+import zio.http.endpoint.EndpointExecutor
+
+import java.util.UUID
+
+object EndpointsClient extends ZIOAppDefault with Endpoints {
+
+  val clientExample: URIO[EndpointExecutor[Unit], Unit] =
+    ZIO.scoped {
+      for {
+        executor <- ZIO.service[EndpointExecutor[Unit]]
+        userId   <- ZIO.succeed(UUID.randomUUID())
+        itemId1  <- ZIO.succeed(UUID.randomUUID())
+        itemId2  <- ZIO.succeed(UUID.randomUUID())
+        _        <- executor(initializeCart(userId))
+        _        <- executor(addItem(userId, None, Item(itemId1, "test-item-1", 10.0, 10))).debug("addItem result")
+        _        <- executor(addItem(userId, Some(true), Item(itemId2, "test-item-2", 20.0, 20))).debug("addItem result")
+        _        <- executor(removeItem(userId, itemId2)).debug("removeItem result")
+        _        <- executor(updateItem(userId, itemId1, UpdateItemRequest(35))).debug("updateItem result")
+        _        <- executor(addItem(userId, Some(true), Item(itemId2, "test-item-2", 20.0, 20))).debug("addItem result")
+        _        <- executor(getCartContents(userId, Some(1))).debug("getCartContents result")
+      } yield ()
+    }
+
+  val run =
+    clientExample
+      .provide(
+        EndpointExecutor.make(serviceName = "cart_service"),
+        Client.default
+      )
 }
 ```
 
