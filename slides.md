@@ -1406,6 +1406,115 @@ object EndpointsClient extends ZIOAppDefault with Endpoints {
 
 ---
 transition: slide-left
+layout: image
+image: /laptop.jpg
+class: "justify-end text-right"
+---
+
+## Comparative Matrix
+
+---
+transition: slide-left
+layout: default
+class: text-xs
+---
+
+<div class="flex h-full w-full items-center">
+
+|                         |                                           |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
+|-------------------------|-------------------------------------------|---------------|---------|----------------------|
+|**Server-based backends**|akka-http                                  |✅             |✅       |❌                    |
+|                         |pekko-http                                 |❌             |✅       |❌                    |
+|                         |http4s                                     |✅             |✅       |❌                    |
+|                         |zio-http                                   |❌             |✅       |✅                    |
+|                         |Play                                       |✅             |✅       |❌                    |
+|                         |Finatra                                    |❌             |✅       |❌                    |
+|                         |Netty                                      |❌             |✅       |❌                    |
+|                         |Vert.X                                     |❌             |✅       |❌                    |
+|                         |Armeria                                    |❌             |✅       |❌                    |
+|                         |JDK HttpHandler (synchronous API only)     |❌             |✅       |❌                    |
+
+</div>
+
+---
+transition: slide-left
+layout: default
+class: text-xs
+---
+
+<div class="flex h-full w-full items-center">
+
+|                       |                                           |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
+|-----------------------|-------------------------------------------|---------------|---------|----------------------|
+|**Serverless backends**|AWS Lambda function                        |❌             |✅       |❌                    |
+|**Client backends**    |akka-http                                  |✅             |✅ (sttp)|❌                    |
+|                       |http4s                                     |✅             |✅       |❌                    |
+|                       |sttp (supports several backends on its own)|✅             |✅       |❌                    |
+|                       |zio-http                                   |❌             |❌       |✅                    |
+|                       |Play                                       |✅             |✅       |❌                    |
+|                       |XMLHttpRequest (Scala.js)                  |✅             |❌       |❌                    |
+|                       |Fetch (Scala.js)                           |✅             |✅ (sttp)|❌                    |
+
+</div>
+
+---
+transition: slide-left
+layout: default
+class: text-xs
+---
+
+<div class="flex h-full w-full items-center">
+
+|                |              |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
+|----------------|--------------|---------------|---------|----------------------|
+|**JSON support**|circe         |✅             |✅       |✅                    |
+|                |play-json     |✅             |✅       |✅                    |
+|                |ujson         |✅             |❌       |✅                    |
+|                |upickle       |❌             |✅       |✅                    |
+|                |spray-json    |❌             |✅       |✅                    |
+|                |tethys-json   |❌             |✅       |✅                    |
+|                |jsoniter-scala|❌             |✅       |✅                    |
+|                |json4s        |❌             |✅       |✅                    |
+|                |zio-json      |❌             |✅       |✅                    |
+|**XML support** |scalaxb       |❌             |✅       |❌                    |
+
+</div>
+
+---
+transition: slide-left
+layout: default
+class: text-xs
+---
+
+<div class="flex h-4/5 w-full items-center">
+
+|                 |                                    |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
+|-----------------|------------------------------------|---------------|---------|----------------------|
+|**Documentation**|OpenAPI generation                  |✅             |✅       |✅                    |
+|                 |Generation of endpoints from OpenAPI|❌             |✅       |❌                    |
+|                 |AsyncAPI generation                 |❌             |✅       |❌                    |
+|                 |JSON schema generation              |❌             |✅       |❌                    |
+|                 |Markdown generation                 |❌             |❌       |✅                    |
+|                 |CLI generation                      |❌             |❌       |✅                    |
+
+</div>
+
+---
+transition: slide-left
+layout: default
+class: text-xs
+---
+
+<div class="flex h-4/5 w-full items-center">
+
+|               |                                  |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
+|---------------|----------------------------------|---------------|---------|----------------------|
+|**Performance**|Prefix trees for route dispatching|❌             |❌       |✅                    |
+
+</div>
+
+---
+transition: slide-left
 layout: image-right
 image: /summary.jpg
 ---
@@ -1414,9 +1523,31 @@ image: /summary.jpg
 
 <div class="mt-4 flex h-4/5 w-full items-center">
   <ul>
-    <li v-click>Classic approach to building APIs is low-level</li>
-    <li v-click>Endpoints offer a higher-level solution</li>
-    <li v-click>Each endpoint library has slightly different features and excels at slightly different use cases</li>
+    <li v-click><b>Classic approach</b> to building APIs is <b>low-level</b></li>
+    <li v-click><b>Endpoints</b> offer a <b>higher-level</b> solution</li>
+    <li v-click>Each <b>endpoint library</b> has slightly different features and excels at slightly different use cases</li>
+  </ul>
+</div>
+
+---
+transition: slide-left
+layout: image-right
+image: /summary.jpg
+---
+
+## **Summary**
+
+<div class="mt-4 flex h-4/5 w-full items-center">
+  <ul>
+    <li v-click>Multiple server backends: <b>Tapir</b></li>
+    <li v-click>Serverless AWS Lambda backend: <b>Tapir</b></li>
+    <li v-click>Multiple client backends: <b>Endpoints4s, Tapir</b></li>
+    <li v-click>Support for any JSON library: <b>ZIO HTTP Endpoints</b></li>
+    <li v-click>Support for XML: <b>Tapir</b></li>
+    <li v-click>Multiple documentation formats: <b>Tapir</b></li>
+    <li v-click>CLI generation: <b>ZIO HTTP Endpoints</b></li>
+    <li v-click>ZIO native: <b>ZIO HTTP Endpoints</b></li>
+    <li v-click>Performance: <b>ZIO HTTP Endpoints</b></li>
   </ul>
 </div>
 
