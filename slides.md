@@ -699,6 +699,15 @@ transition: slide-left
 layout: default
 ---
 
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/thereIsMore.jpg" class="h-70"/></div>
+</div>
+
+---
+transition: slide-left
+layout: default
+---
+
 ## Bonus: Shopping Cart Client using **Endpoints4s**
 
 ```scala {1-11|13|15|18|19-29|30-32|33|34-36|37-39|40|41|42-44|45} {maxHeight:'400px'}
@@ -753,6 +762,15 @@ object Endpoints4sClient extends ZIOAppDefault {
   val run = clientExample.provide(CartServiceLive.layer)
 }
 ```
+
+---
+transition: slide-left
+layout: default
+---
+
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/stillMore.jpg" class="h-70"/></div>
+</div>
 
 ---
 transition: slide-left
@@ -1052,6 +1070,15 @@ transition: slide-left
 layout: default
 ---
 
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/bonuses.jpg" class="h-70"/></div>
+</div>
+
+---
+transition: slide-left
+layout: default
+---
+
 ## Bonus: Shopping Cart Client using **Tapir**
 
 ```scala {1-6|8|12|13|14|15-18|19-21|22|23|24|25|26|27|28} {maxHeight:'400px'}
@@ -1331,9 +1358,18 @@ transition: slide-left
 layout: default
 ---
 
+<div class="flex w-full h-full justify-center items-center">
+  <div><img src="/bonusTime.jpeg" class="h-70"/></div>
+</div>
+
+---
+transition: slide-left
+layout: default
+---
+
 ## Bonus: Shopping Cart Client using **ZIO-HTTP Endpoints API**
 
-```scala {1-5|7|12|13-15|16|17|18|19|20|21|22} {maxHeight:'400px'}
+```scala {1-5|7|12|13-15|16|17|18|19|20|21|22|26-31} {maxHeight:'400px'}
 import zio._
 import zio.http._
 import zio.http.endpoint.EndpointExecutor
