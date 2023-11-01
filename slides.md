@@ -98,15 +98,12 @@ image: /routes.jpg
 
 ## Example: <br/> **Shopping cart API**
 
-
-<div class="mt-4 flex h-3/5 w-full items-center">
-  <ul>
-    <li v-click><b>Initialize cart:</b> <code>POST /cart/{userId}</code></li>
-    <li v-click><b>Add item:</b> <code>POST /cart/{userId}/item</code></li>
-    <li v-click><b>Delete item:</b> <code>DELETE /cart/{userId}/item/{itemId}</code></li>
-    <li v-click><b>Update item:</b> <code>PUT /cart/{userId}/item/{itemId}</code></li>
-    <li v-click><b>Get cart contents:</b> <code>GET /cart/{userId}</code></li>
-  </ul>
+<div class="mt-8 grid grid-cols-[33%_1fr] h-3/5 w-full text-sm">
+  <b v-click>Initialize cart:</b> <span v-after><code>POST /cart/{userId}</code></span>
+  <b v-click>Add item:</b> <span v-after><code>POST /cart/{userId}/item</code></span>
+  <b v-click>Delete item:</b> <span v-after><code>DELETE /cart/{userId}/item/{itemId}</code></span>
+  <b v-click>Update item:</b> <span v-after><code>PUT /cart/{userId}/item/{itemId}</code></span>
+  <b v-click>Get cart contents:</b> <span v-after><code>GET /cart/{userId}</code></span>
 </div>
 
 ---
@@ -120,7 +117,7 @@ layout: default
 ```scala {all} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio-http"   % zioHttpVersion
+  "dev.zio" %% "zio-http" % zioHttpVersion
 )
 ```
 </div>
@@ -482,7 +479,7 @@ layout: default
 
 ## Shopping Cart using **Endpoints4s**
 
-```scala {1-4|6|7|9|11|13-21|23-38|40} {maxHeight:'400px'}
+```scala {1-4|6|7|9|11|13-21|14|23-38|40} {maxHeight:'400px'}
 import endpoints4s.generic.docs
 import zio._
 
@@ -853,7 +850,7 @@ layout: default
 
 ## Shopping Cart using **Tapir**
 
-```scala {1-8|9|10|12-15|17|19-32|34-55|57-61} {maxHeight:'400px'}
+```scala {1-8|9|10|12-15|17|19-32|20|34-55|57-61} {maxHeight:'400px'}
 import sttp.tapir.Schema.annotations.description
 import sttp.tapir.Schema
 import zio._
@@ -924,7 +921,7 @@ layout: default
 
 ## Shopping Cart using **Tapir**
 
-```scala {1-6|7|8|9|10|11|12-13|15-19|16|17|18|19|21-27|22|23|24|25|26|27|29-33|30|31|32|33|35-40|36|37|38|39|40|42-47|43|44|45|46|47} {maxHeight:'400px'}
+```scala {1-6|7|8|9|10|11|12-13|15-19|16|17|18|19|21-27|22|23|24|25|26|27|29-33|35-40|42-47|45} {maxHeight:'400px'}
 import sttp.model.StatusCode
 import sttp.tapir.json.zio._
 import sttp.tapir.ztapir._
@@ -1146,7 +1143,7 @@ image: /laptop.jpg
 class: "justify-end text-right"
 ---
 
-## Example:<br/>Shopping Cart using **ZIO-HTTP Endpoints API**
+## Example:<br/>Shopping Cart<br/> using **ZIO-HTTP Endpoints API**
 
 ---
 transition: slide-left
@@ -1242,7 +1239,7 @@ layout: default
 
 ## Shopping Cart using **ZIO-HTTP Endpoints API**
 
-```scala {1-4|6|7|8|9|10|11-12|14-16|15|16|18-22|19|20|21|22|24-26|25|26|28-31|29|30|31|33-36|34|35|36} {maxHeight:'400px'}
+```scala {1-4|6|7|8|9|10|11-12|14-16|15|16|18-22|19|20|21|22|24-26|28-31|33-36|35} {maxHeight:'400px'}
 import zio.http._
 import zio.http.codec._
 import zio.http.codec.HttpCodec._
@@ -1556,18 +1553,16 @@ image: /summary.jpg
 
 ## **Summary**
 
-<div class="mt-4 flex h-4/5 w-full items-center">
-  <ul>
-    <li v-click>Multiple server backends: <b>Tapir</b></li>
-    <li v-click>Serverless AWS Lambda backend: <b>Tapir</b></li>
-    <li v-click>Multiple client backends: <b>Endpoints4s, Tapir</b></li>
-    <li v-click>Support for any JSON library: <b>ZIO HTTP Endpoints</b></li>
-    <li v-click>Support for XML: <b>Tapir</b></li>
-    <li v-click>Multiple documentation formats: <b>Tapir</b></li>
-    <li v-click>CLI generation: <b>ZIO HTTP Endpoints</b></li>
-    <li v-click>ZIO native: <b>ZIO HTTP Endpoints</b></li>
-    <li v-click>Performance: <b>ZIO HTTP Endpoints</b></li>
-  </ul>
+<div class="mt-8 grid grid-cols-2 h-3/5 w-full text-sm">
+  <span v-click>Multiple server backends</span> <b v-after>Tapir</b>
+  <span v-click>Serverless AWS Lambda backend</span> <b v-after>Tapir</b>
+  <span v-click>Multiple client backends</span> <b v-after>Endpoints4s, Tapir</b>
+  <span v-click>Support for any JSON library</span> <b v-after>ZIO HTTP Endpoints</b>
+  <span v-click>Support for XML</span> <b v-after>Tapir</b>
+  <span v-click>Multiple documentation formats</span> <b v-after>Tapir</b>
+  <span v-click>CLI generation</span> <b v-after>ZIO HTTP Endpoints</b>
+  <span v-click>ZIO native</span> <b v-after>ZIO HTTP Endpoints</b>
+  <span v-click>Performance</span> <b v-after>ZIO HTTP Endpoints</b>
 </div>
 
 ---
@@ -1583,6 +1578,7 @@ image: /learn.jpg
     <li>Visit the <strong>Tapir</strong> <a href="https://github.com/softwaremill/tapir" target="_blank">GitHub repo</a></li>
     <li>Visit the <strong>Endpoints4s</strong> <a href="https://github.com/endpoints4s/endpoints4s" target="_blank">GitHub repo</a></li>
     <li>Visit the <strong>ZIO HTTP</strong> <a href="https://github.com/zio/zio-http" target="_blank">GitHub repo</a></li>
+    <li>Watch my talk about <strong>ZIO HTTP CLI:</strong><br/> <a href="https://youtu.be/BEwxsPUQ9SY?si=C4JKp569-Hr8Wz4K" target="_blank">Teach your Web API to Speak Loud and Clear CLI!</a></li>
   </ul>
 </div>
 
