@@ -1406,6 +1406,25 @@ object EndpointsClient extends ZIOAppDefault with Endpoints {
 
 ---
 transition: slide-left
+layout: default
+---
+
+## Bonus: Shopping Cart Docs using **ZIO-HTTP Endpoints API**
+
+```scala {1-3|5|6|8} {maxHeight:'400px'}
+import zio._
+import zio.http.endpoint.openapi.OpenAPIGen
+import zio.json._
+
+object EndpointsDocs extends ZIOAppDefault with Endpoints {
+  val docs = OpenAPIGen.fromEndpoints(initializeCart, addItem, removeItem, updateItem, getCartContents)
+
+  val run = Console.printLine(docs.toJson)
+}
+```
+
+---
+transition: slide-left
 layout: image
 image: /laptop.jpg
 class: "justify-end text-right"
