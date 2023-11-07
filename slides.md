@@ -77,7 +77,7 @@ layout: default
       <li v-click>It also involves <b>manual encoding</b> of responses</li>
     </ul>
   </div>
-  <div v-click><img src="/lowLevel.jpg" class="h-60"/></div>
+  <div v-click><img src="/lowLevel.jpg" class="h-60 rounded-md"/></div>
 </div>
 
 
@@ -210,7 +210,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/tooEasy.jpg" class="h-90"/></div>
+  <div><img src="/tooEasy.jpg" class="h-90 rounded-md"/></div>
 </div>
 
 ---
@@ -270,7 +270,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/classicZio.jpg" class="h-70"/></div>
+  <div><img src="/classicZio.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -367,7 +367,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/boring.jpg" class="h-70"/></div>
+  <div><img src="/boring.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 --
@@ -376,7 +376,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/nothingFree.jpg" class="h-70"/></div>
+  <div><img src="/nothingFree.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -392,7 +392,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/picardOfCourse.jpg" class="h-70"/></div>
+  <div><img src="/picardOfCourse.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -420,7 +420,7 @@ layout: default
       <li v-click>They provide benefits like <b>OpenAPI documentation</b> and <b>type-safe clients</b> totally for free</li>
     </ul>
   </div>
-  <div v-click><img src="/highLevel.jpeg" class="h-60"/></div>
+  <div v-click><img src="/highLevel.jpeg" class="h-60 rounded-md"/></div>
 </div>
 
 ---
@@ -431,7 +431,7 @@ layout: default
 ## Use High-Level **Endpoint** Libraries!
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/sourceTruth.jpeg" class="h-60"/></div>
+  <div><img src="/sourceTruth.jpeg" class="h-60 rounded-md"/></div>
 </div>
 
 ---
@@ -697,7 +697,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/thereIsMore.jpg" class="h-70"/></div>
+  <div><img src="/thereIsMore.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -766,7 +766,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/stillMore.jpg" class="h-70"/></div>
+  <div><img src="/stillMore.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -1068,7 +1068,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/bonuses.jpg" class="h-70"/></div>
+  <div><img src="/bonuses.jpg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
@@ -1356,7 +1356,7 @@ layout: default
 ---
 
 <div class="flex w-full h-full justify-center items-center">
-  <div><img src="/bonusTime.jpeg" class="h-70"/></div>
+  <div><img src="/bonusTime.jpeg" class="h-70 rounded-md"/></div>
 </div>
 
 ---
