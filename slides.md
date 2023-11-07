@@ -188,7 +188,7 @@ layout: default
 
 ## Shopping Cart using the **ZIO-HTTP Routes API**
 
-```scala {1-3|5|6|7|8|9|10|11|12|6-13} {maxHeight:'400px'}
+```scala {1-3|5|6-13|8|9-12} {maxHeight:'400px'}
 import zio._
 import zio.http._
 import zio.json._
@@ -280,7 +280,7 @@ layout: default
 
 ## Shopping Cart using the **ZIO-HTTP Routes API**
 
-```scala {1-3|5|7-14|7|8|13|16-36|16|17|21-23|25-34|35|38-45|38|39|44|47-60|47|48|52-54|56-59|62-78|62|63|67-76|77} {maxHeight:'400px'}
+```scala {1-3|5|7-14|8|13|16-36|17|21-23|25-34|35|38-45|39|44|47-60|48|52-54|56-59|62-78|62|63|67-76|77} {maxHeight:'400px'}
 import zio._
 import zio.http._
 import zio.json._
@@ -451,7 +451,7 @@ layout: default
 ## Shopping Cart using **Endpoints4s**
 
 <div class="flex h-4/5 w-full items-center">
-```scala {all|3|4|5|6|7|8|9|10} {maxHeight:'400px'}
+```scala {all|3-4|5-7|8-9|10} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
   "org.endpoints4s"               %% "algebra"                 % endpoints4sVersion,
@@ -529,7 +529,7 @@ layout: default
 
 ## Shopping Cart using **Endpoints4s**
 
-```scala {1-7|9|10|11|12|13|14|16|18-23|25|27|28|29|31-36|33|34|35|38-54|41|42|43-50|52|53|56-61|63-68|70-74|71} {maxHeight:'400px'}
+```scala {1-7|9|10-14|16|18-23|25|27|28|29|31-36|33|34|35|38-54|41|42|43-50|52|53|56-61|63-68|70-74|71} {maxHeight:'400px'}
 import endpoints4s.{ algebra, generic }
 import endpoints4s.Validated
 
@@ -541,8 +541,8 @@ import scala.util.Try
 // Step 2: Define Endpoints
 trait Endpoints
     extends algebra.Endpoints
-    with algebra.JsonEntitiesFromSchemas
     with generic.JsonSchemas
+    with algebra.JsonEntitiesFromSchemas
     with algebra.StatusCodes {
 
   implicit lazy val itemSchema: JsonSchema[Item] = genericJsonSchema
@@ -614,7 +614,7 @@ layout: default
 
 ## Shopping Cart using **Endpoints4s**
 
-```scala {1-4|6|7|8|9|10|11|13-20|13|22-33|35-42|44-51|53-60|62-64|66-73} {maxHeight:'400px'}
+```scala {1-4|6|7-11|13-20|22-33|35-42|44-51|53-60|62-64|66-73} {maxHeight:'400px'}
 import org.http4s._
 import org.http4s.blaze.server.BlazeServerBuilder
 import zio._
@@ -707,7 +707,7 @@ layout: default
 
 ## Bonus: Shopping Cart Client using **Endpoints4s**
 
-```scala {1-11|13|15|18|19-29|30-32|33|34-36|37-39|40|41|42-44|45} {maxHeight:'400px'}
+```scala {1-11|13|15|18|19-29|30-32|33-45} {maxHeight:'400px'}
 import com.comcast.ip4s.IpAddress
 import com.comcast.ip4s.Ipv4Address
 import org.http4s._
@@ -776,7 +776,7 @@ layout: default
 
 ## Bonus: Shopping Cart Docs using **Endpoints4s**
 
-```scala {1-2|4|5|6|7|8|10|12-19|21|23-24} {maxHeight:'400px'}
+```scala {1-2|4-8|10|12-19|21|23-24} {maxHeight:'400px'}
 import endpoints4s.openapi
 import zio._
 
@@ -821,7 +821,7 @@ layout: default
 ## Shopping Cart using **Tapir**
 
 <div class="flex h-4/5 w-full items-center">
-```scala {all|3|4|5|6|7|8|9|10|11} {maxHeight:'400px'}
+```scala {all|3|4-8|9|10|11} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir"   %% "tapir-core"              % tapirVersion,
@@ -830,8 +830,8 @@ libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir"   %% "tapir-sttp-client"       % tapirVersion,
   "com.softwaremill.sttp.tapir"   %% "tapir-openapi-docs"      % tapirVersion,
   "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml"      % openApiCirceYamlVersion,
-  "com.softwaremill.sttp.client3" %% "zio"                     % sttpZioVersion,
   "org.http4s"                    %% "http4s-blaze-server"     % http4sBlazeVersion,
+  "com.softwaremill.sttp.client3" %% "zio"                     % sttpZioVersion,
   "dev.zio"                       %% "zio-interop-cats"        % zioInteropCatsVersion
 )
 ```
@@ -1078,7 +1078,7 @@ layout: default
 
 ## Bonus: Shopping Cart Client using **Tapir**
 
-```scala {1-6|8|12|13|14|15-18|19-21|22|23|24|25|26|27|28} {maxHeight:'400px'}
+```scala {1-6|8|12|13|14|15-18|19-21|22-28} {maxHeight:'400px'}
 import sttp.model.Uri._
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.client3.httpclient.zio.HttpClientZioBackend
@@ -1118,7 +1118,7 @@ layout: default
 
 ## Bonus: Shopping Cart Docs using **Tapir**
 
-```scala {1-3|5|7-11|8|9|10|13-14} {maxHeight:'400px'}
+```scala {1-3|5|7-11|13-14} {maxHeight:'400px'}
 import sttp.apispec.openapi.circe.yaml._
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import zio._
@@ -1366,7 +1366,7 @@ layout: default
 
 ## Bonus: Shopping Cart Client using **ZIO-HTTP Endpoints API**
 
-```scala {1-5|7|12|13-15|16|17|18|19|20|21|22|26-31} {maxHeight:'400px'}
+```scala {1-5|7|12|13-15|16-22|26-31} {maxHeight:'400px'}
 import zio._
 import zio.http._
 import zio.http.endpoint.EndpointExecutor
