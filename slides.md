@@ -93,7 +93,7 @@ class: "justify-end text-right"
 ---
 transition: slide-left
 layout: image-right
-image: /routes.jpg
+image: /shoppingCart.jpg
 ---
 
 ## Example: <br/> **Shopping cart API**
@@ -280,7 +280,7 @@ layout: default
 
 ## Shopping Cart using the **ZIO-HTTP Routes API**
 
-```scala {1-3|5|7-14|8|13|16-36|17|21-23|25-34|35|38-45|39|44|47-60|48|52-54|56-59|62-78|62|63|67-76|77} {maxHeight:'400px'}
+```scala {1-3|5|7-14|8|13|16-36|17|21-23|25-34|35|38-45|39|44|47-60|48|52-54|56-59|62-78|63|67-76|77} {maxHeight:'400px'}
 import zio._
 import zio.http._
 import zio.json._
@@ -1553,16 +1553,32 @@ image: /summary.jpg
 
 ## **Summary**
 
-<div class="mt-8 grid grid-cols-2 h-3/5 w-full text-sm">
-  <span v-click>Multiple server backends</span> <b v-after>Tapir</b>
-  <span v-click>Serverless AWS Lambda backend</span> <b v-after>Tapir</b>
-  <span v-click>Multiple client backends</span> <b v-after>Endpoints4s, Tapir</b>
-  <span v-click>Support for any JSON library</span> <b v-after>ZIO HTTP Endpoints</b>
-  <span v-click>Support for XML</span> <b v-after>Tapir</b>
-  <span v-click>Multiple documentation formats</span> <b v-after>Tapir</b>
-  <span v-click>CLI generation</span> <b v-after>ZIO HTTP Endpoints</b>
-  <span v-click>ZIO native</span> <b v-after>ZIO HTTP Endpoints</b>
-  <span v-click>Performance</span> <b v-after>ZIO HTTP Endpoints</b>
+<div class="mt-12 grid grid-cols-2 h-3/5 w-full text-sm">
+  <b class="row-span-6">Use Tapir if you need...</b>
+  <span v-click>Multiple server backends</span> 
+  <span v-click>Serverless AWS Lambda backend</span> 
+  <span v-click>Multiple client backends</span> 
+  <span v-click>Support for multiple JSON libraries</span> 
+  <span v-click>Support for XML</span>
+  <span v-click>Multiple documentation formats</span>
+  <b v-click>Use Endpoints4s if you need...</b>
+  <span v-click>Multiple client backends</span> 
+</div>
+
+---
+transition: slide-left
+layout: image-right
+image: /summary.jpg
+---
+
+## **Summary**
+
+<div class="mt-12 grid grid-cols-2 h-3/5 w-full text-sm">
+  <b class="row-span-6">Use ZIO HTTP Endpoints if you need...</b>
+  <span v-click>ZIO native solution</span>
+  <span v-click>Performance</span>
+  <span v-click>Support for any JSON library</span> 
+  <span v-click>CLI generation</span>
 </div>
 
 ---
