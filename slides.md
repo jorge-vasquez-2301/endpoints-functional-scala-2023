@@ -1364,7 +1364,7 @@ transition: slide-left
 layout: default
 ---
 
-## Bonus: Shopping Cart Client using **ZIO-HTTP Endpoints API**
+### Bonus: Shopping Cart Client using **ZIO-HTTP Endpoints API**
 
 ```scala {1-5|7|12|13-15|16-22|26-31} {maxHeight:'400px'}
 import zio._
