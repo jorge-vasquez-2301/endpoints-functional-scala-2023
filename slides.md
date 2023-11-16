@@ -850,7 +850,7 @@ layout: default
 
 ## Shopping Cart using **Tapir**
 
-```scala {1-8|9|10|12-15|17|19-32|20|34-55|57-61} {maxHeight:'400px'}
+```scala {1-8|9|10|12-15|17|19-32|20|31|34-55|57-61} {maxHeight:'400px'}
 import sttp.tapir.Schema.annotations.description
 import sttp.tapir.Schema
 import zio._
@@ -1174,7 +1174,7 @@ layout: default
 
 ## Shopping Cart using **ZIO-HTTP Endpoints API**
 
-```scala {1-6|8|9-12|14|16-29|31-48|50-55} {maxHeight:'400px'}
+```scala {1-6|8|9-12|14|16-29|17|28|31-48|50-55} {maxHeight:'400px'}
 import zio.json._
 import zio.schema._
 import zio.schema.annotation.description
