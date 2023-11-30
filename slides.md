@@ -117,7 +117,7 @@ layout: default
 ```scala {all} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio-http" % zioHttpVersion
+  "dev.zio" %% "zio-http" % zioHttpVersion // 3.0.0-RC4
 )
 ```
 </div>
@@ -370,7 +370,7 @@ layout: default
   <div><img src="/boring.jpg" class="h-70 rounded-md"/></div>
 </div>
 
---
+---
 transition: slide-left
 layout: default
 ---
@@ -1156,7 +1156,7 @@ layout: default
 ```scala {all} {maxHeight:'400px'}
 // build.sbt
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio-http" % zioHttpVersion
+  "dev.zio" %% "zio-http" % zioHttpVersion // 3.0.0-RC4
 )
 ```
 </div>
