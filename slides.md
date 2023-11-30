@@ -1622,7 +1622,8 @@ image: /computer.png
 ## **Contact me**
 
 <div class="grid grid-cols-8 gap-4 items-center h-4/5 content-center text-2xl">
-  <div class="col-span-1"><img src="/x.png" class="w-8" /></div> <div class="col-span-7">@jorvasquez2301</div>
-  <div class="col-span-1"><img src="/linkedin.png" class="w-8" /></div> <div class="col-span-7">jorge-vasquez-2301</div>
-  <div class="col-span-1"><img src="/email.png" class="w-8" /></div> <div class="col-span-7">jorge.vasquez@ziverge.com</div>
+  <div class="col-span-1" v-click><img src="/x.png" class="w-8" /></div> <div class="col-span-7" v-after>@jorvasquez2301</div>
+  <div class="col-span-1" v-click><img src="/linkedin.png" class="w-8" /></div> <div class="col-span-7" v-after>jorge-vasquez-2301</div>
+  <div class="col-span-1" v-click><img src="/email.png" class="w-8" /></div> <div class="col-span-7" v-after>jorge.vasquez@ziverge.com</div>
+  <div class="col-span-1" v-click><img src="/blog.png" class="w-8" /></div> <div class="col-span-7" v-after><b>jorgevasquez.blog</b></div>
 </div>
