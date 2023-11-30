@@ -1,3 +1,3 @@
-# Teach Your Web API to Speak Loud and Clear CLI!
+# Elevate and Conquer: Unleashing the Power of High-Level Endpoints in Scala 
 
-Slides for presentation at ZIO World 2023
+Slides for presentation at Functional Scala 2023
