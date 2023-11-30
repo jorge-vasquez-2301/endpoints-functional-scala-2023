@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Install slidev
-        run: npm i -g @slidev/cli
+        run: npm i -g @slidev/cli@0.40.16
       - name: Build
         run: slidev build --base endpoints-functional-scala-2023/
       - name: Deploy pages
