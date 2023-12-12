@@ -1483,14 +1483,14 @@ class: text-xs
 
 |                |              |**Endpoints4s**|**Tapir**|**ZIO-HTTP Endpoints**|
 |----------------|--------------|---------------|---------|----------------------|
-|**JSON support**|circe         |✅             |✅       |✅                    |
-|                |play-json     |✅             |✅       |✅                    |
-|                |ujson         |✅             |❌       |✅                    |
-|                |upickle       |❌             |✅       |✅                    |
-|                |spray-json    |❌             |✅       |✅                    |
-|                |tethys-json   |❌             |✅       |✅                    |
-|                |jsoniter-scala|❌             |✅       |✅                    |
-|                |json4s        |❌             |✅       |✅                    |
+|**JSON support**|circe         |✅             |✅       |❌                    |
+|                |play-json     |✅             |✅       |❌                    |
+|                |ujson         |✅             |❌       |❌                    |
+|                |upickle       |❌             |✅       |❌                    |
+|                |spray-json    |❌             |✅       |❌                    |
+|                |tethys-json   |❌             |✅       |❌                    |
+|                |jsoniter-scala|❌             |✅       |❌                    |
+|                |json4s        |❌             |✅       |❌                    |
 |                |zio-json      |❌             |✅       |✅                    |
 |**XML support** |scalaxb       |❌             |✅       |❌                    |
 
@@ -1576,8 +1576,7 @@ image: /summary.jpg
 <div class="mt-12 grid grid-cols-2 h-3/5 w-full text-sm">
   <b class="row-span-6">Use ZIO HTTP Endpoints if you need...</b>
   <span v-click>ZIO native solution</span>
-  <span v-click>Performance</span>
-  <span v-click>Support for any JSON library</span> 
+  <span v-click>Superior performance</span>
   <span v-click>CLI generation</span>
 </div>
 
